@@ -1,0 +1,11 @@
+{
+    "require": {
+        "workerman/workerman": "^4.0",
+        "lemon_framework/lemon": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lemon\\": "src"
+        }
+    }
+}
