@@ -19,6 +19,24 @@ use Workerman\Worker;
 
 class Squeezer
 {
+    const CONTENT_TYPES = [
+        'css' => 'text/css',
+        'js' => 'text/javascript',
+        'txt' => 'text/plain',
+        'html' => 'text/html',
+        'gif' => 'image/gif',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'json' => 'application/json',
+        'pdf' => 'application/pdf',
+        'ogg' => 'application/ogg',
+        'mpeg' => 'video/mpeg',
+        'mp4' => 'video/mp4',
+        'mov' => 'video/quicktime',
+        'webm' => 'video/webm',
+    ];
+
     public function __construct(
         private Application $application
     ) {
@@ -49,7 +67,15 @@ class Squeezer
     {
         $path = $this->application->directory.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.$request->path();
         if (file_exists($path) && !is_dir($path)) {
-            $connection->send(file_get_contents($path));
+            $extension = explode('.', $path)[1];
+            $content_type = isset(self::CONTENT_TYPES[$extension]) 
+                ? self::CONTENT_TYPES[$extension] 
+                : 'text/plain'
+            ;
+
+            $connection->send(
+                (new Response(200, ['Content-Type' => $content_type], file_get_contents($path)))
+            );
             return;
         }
 
