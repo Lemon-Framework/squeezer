@@ -47,7 +47,7 @@ class Squeezer
         $squezer = new self($application);
         $application->get('terminal')
                     ->command(
-                        'start {host?} {port?}',
+                        'squeeze {host?} {port?}',
                         Closure::fromCallable([$squezer, 'command']),
                         'Executes app using Lemon Squeezer'
                     );
@@ -60,7 +60,8 @@ class Squeezer
 
         $worker->onMessage = [$this, 'handleIncomming'];
 
-        $worker->runAll();
+        $worker->listen();
+        $worker->run();
     }
 
     public function handleIncomming(ConnectionInterface $connection, Request $request) 
