@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Lemon\Lemon\Squeezer;
 
 use Closure;
+use Lemon\Debug\Handling\Reporter;
 use Lemon\Http\Request as LemonRequest;
-use Lemon\Http\Response as LemonResponse; 
+use Lemon\Http\Response as LemonResponse;
+use Lemon\Http\Responses\TemplateResponse;
 use Lemon\Kernel\Application;
 use Lemon\Terminal\Terminal;
 use Throwable;
@@ -60,7 +62,7 @@ class Squeezer
             $response = $this->application->get('routing')->dispatch($request);
             $connection->send($this->convertResponse($response));
         } catch (Throwable $e) {
-            $this->application->handle($e);
+            $connection->send($this->handle($e));
         }
     }
 
@@ -85,6 +87,18 @@ class Squeezer
         } 
 
         return $result;
+    }
+
+    public function handle(Throwable $problem): Response
+    {
+        if ($this->application->get('config')->get('debug.debug')) {
+            $reporter = new Reporter($problem, $this->application->get('request'));
+            $response = new TemplateResponse($reporter->getTemplate(), 500);
+        } else {
+            $response = $this->application->get('response')->error(500);
+        }
+
+        return $this->convertResponse($response);
     }
 
     public function command(Terminal $terminal, $host = 'localhost', $port = '8000')
