@@ -1,4 +1,14 @@
 {
+    "name": "lemon_framework/squeezer",
+    "description": "Squeezes more out of your lemon app",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Majkel",
+            "email": "tenmajkl@proton.me"
+        }
+    ],
     "require": {
         "workerman/workerman": "^4.0",
         "lemon_framework/lemon": "^3.3"
