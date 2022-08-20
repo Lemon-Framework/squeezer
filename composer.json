@@ -11,7 +11,7 @@
     ],
     "require": {
         "workerman/workerman": "^4.0",
-        "lemon_framework/lemon": "^3.3"
+        "lemon_framework/lemon": "^3.4"
     },
     "autoload": {
         "psr-4": {

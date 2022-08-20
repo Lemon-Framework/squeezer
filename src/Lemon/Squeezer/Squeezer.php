@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lemon\Lemon\Squeezer;
 
 use Closure;
+use Lemon\Contracts\Http\Session as SessionContract;
 use Lemon\Debug\Handling\Reporter;
 use Lemon\Http\Request as LemonRequest;
 use Lemon\Http\Response as LemonResponse;
@@ -64,9 +65,9 @@ class Squeezer
         $worker->run();
     }
 
-    public function handleIncomming(ConnectionInterface $connection, Request $request) 
+    public function handleIncomming(ConnectionInterface $connection, Request $worker_request) 
     {
-        $path = $this->application->directory.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.$request->path();
+        $path = $this->application->directory.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.$worker_request->path();
         if (file_exists($path) && !is_dir($path)) {
             $extension = explode('.', $path)[1];
             $content_type = isset(self::CONTENT_TYPES[$extension]) 
@@ -80,11 +81,16 @@ class Squeezer
             return;
         }
 
-        $request = $this->captureRequest($request);
+        $request = $this->captureRequest($worker_request);
         $this->application->add(LemonRequest::class, $request);
-        if (!$this->application->has('request')) {
+        $this->application->add(Session::class, new Session($worker_request->sessionId()));
+
+        if (!$this->application->hasAlias('request')) {
             $this->application->alias('request', LemonRequest::class);
+            $this->application->alias('session', Session::class);
+            $this->application->alias(SessionContract::class, Session::class);
         }
+
         try {
             $response = $this->application->get('routing')->dispatch($request);
             $connection->send($this->convertResponse($response));
