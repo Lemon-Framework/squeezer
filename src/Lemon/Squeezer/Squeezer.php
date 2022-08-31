@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Lemon\Lemon\Squeezer;
+namespace Lemon\Squeezer;
 
 use Closure;
 use Lemon\Contracts\Http\Session as SessionContract;

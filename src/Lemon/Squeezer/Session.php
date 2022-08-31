@@ -1,6 +1,6 @@
 <?php
 
-namespace Lemon\Lemon\Squeezer;
+namespace Lemon\Squeezer;
 
 use Lemon\Contracts\Http\Session as SessionContract;
 use Workerman\Protocols\Http\Session as HttpSession;
