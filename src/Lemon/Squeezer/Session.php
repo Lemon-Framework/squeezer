@@ -25,6 +25,14 @@ class Session implements SessionContract
     }
 
     /**
+     * Removes expiration.
+     */
+    public function dontExpire(): static
+    {
+        return $this->expireAt(0);
+    }
+
+    /**
      * Returns value of given key.
      */
     public function get(string $key): string
@@ -47,6 +55,15 @@ class Session implements SessionContract
     public function has(string $key): bool
     {
         return $this->session->has($key);
+    }
+
+    /**
+     * Removes key.
+     */
+    public function remove(string $key): static
+    {
+        $this->session->delete($key);
+        return $this;
     }
 
     /**
