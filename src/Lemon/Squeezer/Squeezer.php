@@ -68,19 +68,10 @@ class Squeezer
     public function handleIncomming(ConnectionInterface $connection, Request $worker_request) 
     {
         $path = $this->application->directory.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.$worker_request->path();
-        if (file_exists($path) && !is_dir($path)) {
-            $extension = explode('.', $path)[1];
-            $content_type = isset(self::CONTENT_TYPES[$extension]) 
-                ? self::CONTENT_TYPES[$extension] 
-                : 'text/plain'
-            ;
-
-            $connection->send(
-                (new Response(200, ['Content-Type' => $content_type], file_get_contents($path)))
-            );
+        if ($response = $this->handleFiles($path)) {
+            $connection->send($response);
             return;
         }
-
         $request = $this->captureRequest($worker_request);
         $this->application->add(LemonRequest::class, $request);
         $this->application->add(Session::class, new Session($worker_request->sessionId()));
@@ -97,6 +88,26 @@ class Squeezer
         } catch (Throwable $e) {
             $connection->send($this->handle($e));
         }
+    }
+
+    public function handleFiles(string $path): ?Response
+    {
+        if (file_exists($path) && !is_dir($path)) {
+            $extension = explode('.', $path)[1];
+
+            if ($extension === 'php') {
+                return null;
+            }
+
+            $content_type = isset(self::CONTENT_TYPES[$extension]) 
+                ? self::CONTENT_TYPES[$extension] 
+                : 'text/plain'
+            ;
+
+            return new Response(200, ['Content-Type' => $content_type], file_get_contents($path));
+        }
+        
+        return null;
     }
 
     public function captureRequest(Request $request): LemonRequest
